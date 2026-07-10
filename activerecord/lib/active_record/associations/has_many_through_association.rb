@@ -70,7 +70,11 @@ module ActiveRecord
 
         def through_scope_attributes
           scope = through_scope || self.scope
-          attributes = scope.where_values_hash(through_association.reflection.klass.table_name)
+          # Only equality (scalar) conditions from the scope should be copied
+          # onto the created join record. A non-equality condition such as an
+          # `IN` from `where(col: [a, b])` must not be applied as an attribute
+          # value, otherwise the array leaks onto the record (see #50645).
+          attributes = scope.where_clause.to_h(through_association.reflection.klass.table_name, equality_only: true)
           except_keys = [
             *Array(through_association.reflection.foreign_key),
             through_association.reflection.klass.inheritance_column

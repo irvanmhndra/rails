@@ -1,3 +1,16 @@
+*   Fix creating a record through a `has_many :through` association whose scope has
+    an array (`IN`) condition applying that array to the new join record.
+
+    A scope such as `-> { where(status: [:a, :b]) }` on a through association caused
+    the join record to be built with the array serialized into the column (e.g.
+    `"[\"a\", \"b\"]"`) instead of leaving it at its default, a regression from
+    Rails 7.0. Only scalar equality conditions from the scope are now copied onto
+    the join record.
+
+    Fixes #50645.
+
+    *Irvan Eksa Mahendra*
+
 *   Report PostgreSQL default timestamp and time precision as 6.
 
     Bare PostgreSQL `timestamp` and `time` columns now use their effective

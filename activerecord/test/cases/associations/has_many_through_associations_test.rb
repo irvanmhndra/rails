@@ -741,6 +741,18 @@ class HasManyThroughAssociationsTest < ActiveRecord::TestCase
     assert_equal true, reader.skimmer
   end
 
+  def test_through_scope_with_array_condition_is_not_applied_to_created_join_record
+    # Regression for #50645: a has_many :through source scope with an array
+    # (IN) condition must not push that array onto a created join record's
+    # attribute. Only scalar equality conditions propagate, as verified by
+    # test_through_record_is_built_when_created_with_where above.
+    post = posts(:thinking)
+    post.array_condition_people << people(:michael)
+
+    reader = post.array_condition_readers.reload.last
+    assert_equal false, reader.skimmer
+  end
+
   def test_associate_with_create_and_no_options
     peeps = posts(:thinking).people.count
     posts(:thinking).people.create(first_name: "foo")

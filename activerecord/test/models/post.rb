@@ -203,6 +203,9 @@ class Post < ActiveRecord::Base
   has_many :lazy_readers
   has_many :lazy_readers_skimmers_or_not, -> { where(skimmer: [ true, false ]) }, class_name: "LazyReader"
 
+  has_many :array_condition_readers, -> { where(skimmer: [true, false]) }, class_name: "Reader"
+  has_many :array_condition_people, through: :array_condition_readers, source: :person
+
   has_many :lazy_people, through: :lazy_readers, source: :person
   has_many :lazy_readers_unscope_skimmers, -> { skimmers_or_not }, class_name: "LazyReader"
   has_many :lazy_people_unscope_skimmers, through: :lazy_readers_unscope_skimmers, source: :person
